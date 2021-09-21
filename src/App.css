@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.not-supported-container {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(192, 192, 192, 0.8);
+}
+
+.recorded-video-container {
+  border-top: 1px dashed black;
+}
