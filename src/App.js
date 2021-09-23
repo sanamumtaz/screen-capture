@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { isMobile } from "react-device-detect"
+import { isMobile, isSafari } from "react-device-detect"
 import "./App.css"
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
   const [isRecording, setRecording] = useState(false)
   const [recordedChunks, setRecordedChunks] = useState([])
   const [videoURL, setVideoURl] = useState("")
-  const [log, setLog] = useState("")
+  //const [log, setLog] = useState("")
   const videoRef = useRef(null)
   const streamRef = useRef(null)
   const audioStreamRef = useRef(null)
@@ -24,15 +24,15 @@ function App() {
       videoElement.srcObject = streamRef.current
 
       streamRef.current.oninactive = (e) => {
-        setLog("Stream inactive")
+        console.log("Stream inactive")
         stopStreamedVideo()
       }
       streamRef.current.getVideoTracks()[0].onended = function () {
-        setLog("Stream videotrack onended")
+        console.log("Stream videotrack onended")
         stopStreamedVideo()
       }
       streamRef.current.getVideoTracks()[0].oninactive = function () {
-        setLog("Stream videotrack oninactive")
+        console.log("Stream videotrack oninactive")
         stopStreamedVideo()
       }
       return new Promise((resolve) => {
@@ -54,6 +54,7 @@ function App() {
 
   const stopStreamedVideo = () => {
     const videoElement = videoRef.current
+    if (isSafari && isRecording) stopRecording()
     if (videoElement.srcObject) stopVideoTracks(videoElement)
     videoElement.srcObject = null
     setCapturing(false)
@@ -89,7 +90,9 @@ function App() {
 
   useEffect(() => {
     if (recordedChunks.length) {
-      const blob = new Blob(recordedChunks)
+      const blob = isSafari
+        ? new Blob(recordedChunks, { type: "video/mp4" })
+        : new Blob(recordedChunks)
       const url = window.URL.createObjectURL(blob)
       setVideoURl(url)
     }
